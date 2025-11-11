@@ -7,15 +7,17 @@ getting data ready.
 
 ### Download of FLORES
 
+⚠️ Note this repo has been updated to be used for *dev* by default, rather than testing (for the [AMIYA](https://sites.google.com/view/vardial-2026/shared-tasks) shared task)
+
 To download FLORES-200 data needed for this evaluation automatically, you can simply run `python download_flores.py`. 
-After downloading, you should be able to run `wc -l bitexts/flores200_dataset/devtest/*` 
+After downloading, you should be able to run `wc -l bitexts/flores200_dataset/dev/*` 
 and verify that each of the 7 files downloaded has length `1012`.
 
 You can also download and situate FLORES-200 (or its living counterpart, FLORES+) manually, by visiting 
 this [FLORES GitHub repo](https://github.com/facebookresearch/flores/blob/main/flores200/README.md) and follow instructions for download. 
 
 Once you have downloaded the datasets, please organize them in the `./bitexts` directory so the files look 
-like `./bitexts/flores200_dataset/devtest/<XXX>.devtest`, where `<XXX>` represents the FLORES code of each
+like `./bitexts/flores200_dataset/dev/<XXX>.dev`, where `<XXX>` represents the FLORES code of each
 Arabic language variety in the set (plus English). Those we included in our published study are:
 
 - `arb_Arab`: Modern Standard Arabic
@@ -27,7 +29,7 @@ Arabic language variety in the set (plus English). Those we included in our publ
 - `eng_Latn`: English
 
 For `create_dataset.py` to run without errors later, you should also have the `dev` sets downloaded (in 
-addition to `devtest`). This will happen automatically if you run `download_flores.py`. 
+addition to `dev`). This will happen automatically if you run `download_flores.py`. 
 
 ### Download of MADAR-26
 
