@@ -1,10 +1,23 @@
 from format_xtext import *
 import os
 
+DEVTEST = "dev" # Was "test" in original AL-QASIDA paper
+# Do NOT set to "test" for AMIYA shared task
+if DEVTEST == "dev":
+    MADAR_SPLIT = "corpus-6-test-corpus-26-dev"
+    FLORES_SPLIT = "dev"
+elif DEVTEST == "test":
+    MADAR_SPLIT = "corpus-6-test-corpus-26-test"
+    FLORES_SPLIT = "devtest"
+else:
+    raise NotImplementedError("DEVTEST must be 'dev' or 'test'")
+
 SRC2INFO = {
     "flores": {
         "bitext": True,
-        "temp": lambda x: "bitexts/flores200_dataset/devtest/{}.devtest".format(x),
+        "temp": lambda x: "bitexts/flores200_dataset/{}/{}.{}".format(
+            FLORES_SPLIT, x, FLORES_SPLIT
+        ),
         "from_code": lambda x: COUNTRY2ISO[x], 
         "to_fn_version": lambda x: x + "_Latn" if x == 'eng' else x + "_Arab",
         "txt_keys": ["", ""],
@@ -35,7 +48,7 @@ SRC2INFO = {
         "lang_type": "city",
         "name": "MADAR-26",
         "genre": "btec",
-        "c2filter_str": {c: "split == 'corpus-6-test-corpus-26-test'" for c in COUNTRY2CITY},
+        "c2filter_str": {c: "split == '{MADAR_SPLIT}'" for c in COUNTRY2CITY},
         "countries": [c for c in COUNTRY2CITY]
     },
     "nadi2023": {
