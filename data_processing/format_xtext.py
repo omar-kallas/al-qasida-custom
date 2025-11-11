@@ -353,7 +353,7 @@ if __name__ == "__main__":
     parser.add_argument("--data-src", type=str)
     parser.add_argument("--genre", type=str, choices=["btec", "wiki", "tweets", "music"])
     parser.add_argument("--mono-prompt-json", type=str, default="prompt_templates/json/dial8.json")
-    parser.add_argument("--filter-str", type=str, default="split == 'corpus-6-test-corpus-26-test'")
+    parser.add_argument("--filter-str", type=str, default="split == 'corpus-6-test-corpus-26-dev'")
     parser.add_argument("--out-csv", type=str, default="out.csv")
 
     args = parser.parse_args()
