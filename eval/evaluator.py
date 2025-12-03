@@ -89,7 +89,7 @@ def chrf_corpus_score(labels: List[str], generations: List[str]):
     return {"ChrF_corpus_score": result.score / 100 if result else None}
 
 class BaseEvaluator():
-    def __init__(self, llm_type, dialect, target_lang='ara'):
+    def __init__(self, llm_type, dialect, target_lang='ara', config=None):
         self.llm_type = llm_type 
         self.llm, self.llm_tokenizer = self.llm_type2llm(llm_type)
         self.run_llm = self.get_run_llm(llm_type)
@@ -98,27 +98,47 @@ class BaseEvaluator():
         self.lid_model = self.load_lid() 
         self.dialect = dialect
         self.target_lang = target_lang 
+        self.config = config 
+
+        if self.config:
+            self.hf_model_id = self.config['hf_name']
+        else:
+            self.hf_model_id = MOD2HF_NAME[self.llm_type]
     
     def llm_type2llm(self, llm_type): 
-        if llm_type == "jais":
-            return self.load_jais() 
-        elif llm_type in ["silma", "acegpt"]: 
-            return self.load_silma_acegpt(llm_type) 
-        elif llm_type.startswith("llama"):
-            return self.load_llama() 
-        else:
+        load_type = llm_type + ''
+        if self.config:
+            mapping = {
+                "non-pipeline": "jais", 
+                "gated-pipeline": "llama", 
+                "ungated-pipeline": "silma"
+            }
+            load_type = mapping[self.config["load_model_type"]]
+        elif load_type == "jais":
+            return self.load_non_pipeline() 
+        elif load_type in ["silma", "acegpt"]: 
+            return self.load_ungated_pipeline(llm_type) 
+        elif load_type.startswith("llama"):
+            return self.load_gated_pipeline() 
+        else:  
             raise NotImplementedError(
-                f"Only {SUPPORTED_MODELS} models supported, not {llm_type}"
+                f"{llm_type} not in {SUPPORTED_MODELS} & no config specified"
             )
     
     def get_run_llm(self, llm_type):
-        if llm_type == "jais":
-            return self.run_jais 
-        elif llm_type in ["silma", "acegpt", "llama", "llama-base"]: 
+        run_type = llm_type + ''
+        if self.config:
+            if self.config["load_model_type"] == "non-pipeline":
+                run_type = "jais"
+            else:
+                run_type = "llama"
+        elif run_type == "jais":
+            return self.run_non_pipeline 
+        elif run_type in ["silma", "acegpt", "llama", "llama-base"]: 
             return self.run_hf_pipeline
-        else:
+        else: 
             raise NotImplementedError(
-                f"Must be Llama or Jais model: {llm_type}"
+                f"{llm_type} not in {SUPPORTED_MODELS} & no config specified"
             )
     
     def dialect2index(self, dialect):
@@ -194,47 +214,44 @@ class BaseEvaluator():
             return 1 
         return 0  
     
-    def load_jais(self):
-        print("Loading JAIS model...", flush=True)
-        model_path = MOD2HF_NAME[self.llm_type]
+    def load_non_pipeline(self):
+        print("Loading non-pipeline model...", flush=True) 
         tokenizer = AutoTokenizer.from_pretrained(
-            model_path, 
+            self.hf_model_id, 
             use_auth_token=HF_TOKEN,
             device=DEVICE
         )
         model = AutoModelForCausalLM.from_pretrained(
-            model_path, 
+            self.hf_model_id, 
             device_map={"": DEVICE}, 
             trust_remote_code=True, 
             use_auth_token=HF_TOKEN,
         ).to(torch.device(DEVICE))
         return model, tokenizer
     
-    def load_silma_acegpt(self, option="silma"): 
-        print(f"Loading {option.upper()} model...", flush=True)
-        model_id = MOD2HF_NAME[self.llm_type]
+    def load_ungated_pipeline(self, option="silma"): 
+        print(f"Loading {option.upper()} model...", flush=True) 
         pipe = pipeline(
             "text-generation", 
-            model=model_id, 
+            model=self.hf_model_id, 
             model_kwargs={"torch_dtype": torch.bfloat16}, 
             device=DEVICE, # HACK 
         ) 
         return pipe, None 
     
-    def load_llama(self): 
-        print(f"Loading Llama model...", flush=True)
-        model_id = MOD2HF_NAME[self.llm_type]
+    def load_gated_pipeline(self): 
+        print(f"Loading Llama-like (gated pipeline) model...", flush=True)
         pipe = pipeline(
             "text-generation", 
-            model=model_id, 
+            model=self.hf_model_id, 
             model_kwargs={"torch_dtype": torch.bfloat16}, 
             device=DEVICE, 
             token=HF_TOKEN
         ) 
         return pipe, None  
 
-    def run_jais(self, prompts): 
-        assert self.llm_type == "jais"
+    def run_non_pipeline(self, prompts): 
+        # assert self.llm_type == "jais"
         outs = [] 
         for prompt in tqdm(prompts):
             outs.append(
@@ -246,19 +263,33 @@ class BaseEvaluator():
             )
         return outs 
     
-    def run_hf_pipeline(self, prompts, stride=50):
-        subset_points = [i for i in range(len(prompts)) if i % stride == 0]
+    def run_hf_pipeline(self, prompts, batch_size=50):
+        is_instruct = type(prompts[0]) == list
+        batch_points = [i for i in range(len(prompts)) if i % batch_size == 0]
         outs = [] 
-        for subset_point in tqdm(subset_points):
-            subset_prompts = prompts[subset_point: subset_point + stride]
-            outs += [
-                item[0]['generated_text'] for item in self.llm(
-                    subset_prompts, 
-                    return_full_text=False, 
-                    max_new_tokens=GENERATION_LIMIT,
-                    pad_token_id=self.llm.tokenizer.eos_token_id
-                )
-            ]
+        for batch_point in tqdm(batch_points):
+            batch_prompts = prompts[batch_point: batch_point + batch_size]
+            if is_instruct:
+                outs_here = [
+                    item[0]['generated_text'][-1][
+                        'content'
+                    ] for item in self.llm(
+                        batch_prompts,  
+                        return_full_text=False, 
+                        max_new_tokens=GENERATION_LIMIT,
+                        pad_token_id=self.llm.tokenizer.eos_token_id
+                    )
+                ]
+            else:
+                outs_here = [
+                    item[0]['generated_text'] for item in self.llm(
+                        batch_prompts, 
+                        return_full_text=False, 
+                        max_new_tokens=GENERATION_LIMIT,
+                        pad_token_id=self.llm.tokenizer.eos_token_id
+                    )
+                ]
+            outs += outs_here
         # clean_outs = [] 
         # for out, prompt in zip(outs, prompts):
         #     clean_out = out.strip() 
@@ -310,7 +341,7 @@ class BaseEvaluator():
 
 
 class MTEvaluator(BaseEvaluator):
-    def __init__(self, llm_type, mt_direction="eng-egy"):
+    def __init__(self, llm_type, mt_direction="eng-egy", **kwargs):
         dialect, target_lang = self.retrieve_dialect_lang_from_direction(
             mt_direction
         )
@@ -318,7 +349,8 @@ class MTEvaluator(BaseEvaluator):
         super().__init__(
             llm_type=llm_type, 
             dialect=dialect, 
-            target_lang=target_lang
+            target_lang=target_lang,
+            **kwargs
         ) 
     
     def retrieve_dialect_lang_from_direction(self, mt_direction):
@@ -352,6 +384,7 @@ def run_evaluation(
         llms=SUPPORTED_MODELS,
         dialects=["dza", "mar", "egy", "sdn", "pse", "syr", "sau", "kwt"],
         nshot=0,
+        use_config=None,
     ):
     in_data_organizer = InDataOrganizer(data_dir, task=task, test=test_bool) 
     prompt_organization = in_data_organizer.organize_prompts() 
@@ -362,6 +395,14 @@ def run_evaluation(
     total_evals = len(llms) * sum(
         [len(prompt_organization[genre]) for genre in prompt_organization]
     )
+
+    # Get config if passed
+    if use_config:
+        with open(use_config, 'r') as f:
+            config = json.load(f)
+    else:
+        config = None
+
     # Set up nshots
     lang2prefix = {}
     if nshot:
@@ -375,34 +416,67 @@ def run_evaluation(
                 f"but no shot strings available for {task},"\
                 f"Defaulting to 0-shot"
             )
+    elif config:
+        lang2prefix = config['prefixes']
+
     # Actual loop
     count_idx = 0
     for llm in llms: # In output must be dir with task 
         if llm not in out_pkl:
             out_pkl += "_" + llm
+
+        if config:
+            hf_model_id = config['hf_name']
+        else:
+            hf_model_id = MOD2HF_NAME[llm]
+        is_instruct = "instruct" in hf_model_id.lower()
+        if is_instruct:
+            print(
+                "Using templative prompts because subword `instruct'"\
+                " found in model ID"
+            )
+        
         for genre in prompt_organization: 
-            for dialect in prompt_organization[genre]:
+            dialect_intersection = [
+                d for d in dialects if d in prompt_organization[genre]
+            ]
+            for dialect in dialect_intersection:
                 count_idx += 1
                 print("#####" * 10) 
                 print(f"Running evaluation for {dialect} {genre} {llm}" + \
                     f" ({count_idx}/{total_evals})")
                 print("#####" * 10, flush=True)
+                
                 prompts = prompt_organization[genre][dialect] 
+
+                if is_instruct:
+                    prompts = [
+                        [{"role": "user", "content": p}] for p in prompts
+                    ]
+
                 if dialect in lang2prefix: # Add n shots
                     prefix = lang2prefix[lang]
-                    suffix = ""
-                    if task in TASK2NSHOT_SUFFIX:
-                        suffix = TASK2NSHOT_SUFFIX[task]
+                    if type(prompts[0]) == str:
+                        suffix = ""
+                        if task in TASK2NSHOT_SUFFIX:
+                            suffix = TASK2NSHOT_SUFFIX[task]
+                    else:
+                        suffix = []
                     print(f"Using prefix = {prefix}")
                     print(f"And using suffix = {suffix}", flush=True)
                     prompts = [prefix + prompt + suffix for prompt in prompts]
+                        
                 # Run eval
                 if task == "mt":
-                    evaluator = MTEvaluator(llm_type=llm, mt_direction=dialect)
+                    evaluator = MTEvaluator(
+                        llm_type=llm, mt_direction=dialect, config=config
+                    )
                     refs = ref_organization[genre][dialect]
                     mean_score_dict, outs = evaluator(prompts, refs)
                 else:
-                    evaluator = LingualEvaluator(llm_type=llm, dialect=dialect)
+                    evaluator = LingualEvaluator(
+                        llm_type=llm, dialect=dialect, config=config
+                    )
                     mean_score_dict, outs = evaluator(prompts) 
                 output_organization[genre][dialect] = mean_score_dict 
                 out_prompt_organization[genre][dialect] = outs 
@@ -434,7 +508,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--llm", 
         default=None, 
-        choices=SUPPORTED_MODELS
+        # choices=SUPPORTED_MODELS
     )
     parser.add_argument(
         "--nshot", 
@@ -442,7 +516,30 @@ if __name__ == "__main__":
         default=0, 
         choices=[0,5]
     )
-    args = parser.parse_args() 
+    parser.add_argument(
+        "--use_config",
+        type=str,
+        default=None,
+        help="Use for customization, e.g. output of create_config.py"
+    )
+    parser.add_argument(
+        "--dialects",
+        nargs="+",
+        default=[],
+        help="E.g. mar egy dza"
+    )
+    args = parser.parse_args()
+
+    if args.llm in SUPPORTED_MODELS and args.use_config:
+        usr_warning_response = "" 
+        while usr_warning_response.lower() not in {'y', 'n'}:
+            usr_warning_response = input(
+                f"WARNING: You are using a default supported model {args.llm} "\
+                f"but with customized settings in {args.use_config}. "\
+                "Are you sure you want to proceed? (Y/n) "
+            ) 
+        if usr_warning_response.lower() == 'n':
+            raise KeyboardInterrupt("User quit")
 
     if not (args.cpu or torch.cuda.is_available()):
         raise RuntimeError("Need GPU")
@@ -455,10 +552,19 @@ if __name__ == "__main__":
         llm_list = [args.llm]
         out_pkl_fn = os.path.join(out_pkl_dir, f"{args.task}_{args.llm}")
     else:
-        llm_list = ["jais", "acegpt", "silma", "llama", "llama-base"]
+        llm_list = SUPPORTED_MODELS
         out_pkl_fn = os.path.join(out_pkl_dir, args.task)
     
     task_abbrev = TASK2ABBREV[args.task]
+
+    dialects = args.dialects 
+    if args.dialects:
+        dialects = args.dialects
+        for dialect in dialects:
+            assert dialect in TASK2DIALECTS[args.task], \
+                f"{dialect} not supported for {args.task}"
+    else:
+        dialects = TASK2DIALECTS[args.task] 
 
     run_evaluation(
         data_dir=os.path.join(args.data_dir, task_abbrev), 
@@ -466,7 +572,7 @@ if __name__ == "__main__":
         out_dir=args.out_dir,
         task=args.task,
         llms=llm_list,
-        dialects=TASK2DIALECTS[args.task],
+        dialects=dialects,
         test_bool=args.test,
         nshot=args.nshot,
     )

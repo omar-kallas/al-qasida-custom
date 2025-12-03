@@ -1,0 +1,7 @@
+{
+    "load_model_type": "gated-pipeline",
+    "hf_name": "meta-llama/Llama-3.2-3B-Instruct",
+    "prefixes": {
+        "egy": ""
+    }
+}
