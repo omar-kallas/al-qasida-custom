@@ -19,7 +19,11 @@ Please cite:
 }
 ```
 
-⚠️ Note this repo has been updated to be used for *dev* by default, rather than testing (for the [AMIYA](https://sites.google.com/view/vardial-2026/shared-tasks) shared task)
+⚠️ Recent updates:
+
+- 3 Dec 2025 - Switch to using templative prompts by default for models labeled "Instruct"
+
+- 11 Nov 2025 - Note this repo has been updated to be used for *dev* by default, rather than testing (for the [AMIYA](https://sites.google.com/view/vardial-2026/shared-tasks) shared task)
 
 ## Current to-dos 
 
