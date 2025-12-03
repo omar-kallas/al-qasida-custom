@@ -404,7 +404,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--llm", 
         default=None, 
-        choices=SUPPORTED_MODELS
+        choices=SUPPORTED_MODELS,
+		help="Set to `None` to loop thru all originally supported models"
     )
     args = parser.parse_args() 
 
