@@ -18,7 +18,7 @@ import fasttext
 from huggingface_hub import hf_hub_download
 from sacrebleu.metrics import BLEU, CHRF
 
-import os, glob, argparse
+import os, glob, argparse, json
 import pickle as pkl 
 import pdb  
 from typing import List
