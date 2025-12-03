@@ -18,7 +18,7 @@ import fasttext
 from huggingface_hub import hf_hub_download
 from sacrebleu.metrics import BLEU, CHRF
 
-import os, glob, argparse
+import os, glob, argparse, json
 import pickle as pkl 
 import pdb  
 from typing import List
@@ -49,6 +49,12 @@ TASK2ABBREV = {
     "monolingual": "mono",
     "crosslingual": "xling",
     "mt": "bi"
+}
+NSHOT2JSON = {
+    5: "5shot_prefixes.json"
+}
+TASK2NSHOT_SUFFIX = {
+    "monolingual": "\nA: "
 }
 GENERATION_LIMIT = 128
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -345,6 +351,7 @@ def run_evaluation(
         test_bool=False,
         llms=SUPPORTED_MODELS,
         dialects=["dza", "mar", "egy", "sdn", "pse", "syr", "sau", "kwt"],
+        nshot=0,
     ):
     in_data_organizer = InDataOrganizer(data_dir, task=task, test=test_bool) 
     prompt_organization = in_data_organizer.organize_prompts() 
@@ -355,6 +362,20 @@ def run_evaluation(
     total_evals = len(llms) * sum(
         [len(prompt_organization[genre]) for genre in prompt_organization]
     )
+    # Set up nshots
+    lang2prefix = {}
+    if nshot:
+        with open(NSHOT2JSON[nshot], 'r') as f:
+            task2lang2prefix = json.load(f) 
+        if task in task2lang2prefix:
+            lang2prefix = task2lang2prefix[task]
+        else:
+            print(
+                f"WARNING: nshot set to {nshot}, "\
+                f"but no shot strings available for {task},"\
+                f"Defaulting to 0-shot"
+            )
+    # Actual loop
     count_idx = 0
     for llm in llms: # In output must be dir with task 
         if llm not in out_pkl:
@@ -367,6 +388,15 @@ def run_evaluation(
                     f" ({count_idx}/{total_evals})")
                 print("#####" * 10, flush=True)
                 prompts = prompt_organization[genre][dialect] 
+                if dialect in lang2prefix: # Add n shots
+                    prefix = lang2prefix[lang]
+                    suffix = ""
+                    if task in TASK2NSHOT_SUFFIX:
+                        suffix = TASK2NSHOT_SUFFIX[task]
+                    print(f"Using prefix = {prefix}")
+                    print(f"And using suffix = {suffix}", flush=True)
+                    prompts = [prefix + prompt + suffix for prompt in prompts]
+                # Run eval
                 if task == "mt":
                     evaluator = MTEvaluator(llm_type=llm, mt_direction=dialect)
                     refs = ref_organization[genre][dialect]
@@ -406,6 +436,12 @@ if __name__ == "__main__":
         default=None, 
         choices=SUPPORTED_MODELS
     )
+    parser.add_argument(
+        "--nshot", 
+        type=int,
+        default=0, 
+        choices=[0,5]
+    )
     args = parser.parse_args() 
 
     if not (args.cpu or torch.cuda.is_available()):
@@ -431,7 +467,8 @@ if __name__ == "__main__":
         task=args.task,
         llms=llm_list,
         dialects=TASK2DIALECTS[args.task],
-        test_bool=args.test
+        test_bool=args.test,
+        nshot=args.nshot,
     )
 
 

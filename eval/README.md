@@ -31,6 +31,10 @@ Examples:
 
 ***Note***: Before running any of these commands, be sure to read the [HuggingFace tokens](#huggingface-tokens) section below. 
 
+### Results
+
+Resulting scores should appear in `../llm_outputs/<MODEL_NAME>_<TASK_NAME>/*metrics.csv`.
+
 ## File contents
 
 - `correct_scores.py`: script to redo a subset of evaluations (in the case of mistakes)
