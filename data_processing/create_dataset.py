@@ -50,6 +50,16 @@ def main(json_path):
                 lang = SRC2INFO[source]["from_code"](country)
                 extended_lang = SRC2INFO[source]["to_fn_version"](lang)
                 in_files = [SRC2INFO[source]["temp"](extended_lang)]
+                
+                files_exist = True 
+                for in_file in in_files:
+                    if not os.path.exists(in_file):
+                        files_exist = False
+                        break
+                if not files_exist:
+                    print(f"Skipping {source} with {country}, files not found")
+                    continue
+
                 langs = [country]
                 src_lang = lang
                 if tgt:
