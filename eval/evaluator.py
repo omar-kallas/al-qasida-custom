@@ -91,14 +91,14 @@ def chrf_corpus_score(labels: List[str], generations: List[str]):
 class BaseEvaluator():
     def __init__(self, llm_type, dialect, target_lang='ara', config=None):
         self.llm_type = llm_type 
+        self.config = config
         self.llm, self.llm_tokenizer = self.llm_type2llm(llm_type)
         self.run_llm = self.get_run_llm(llm_type)
         self.aldi_model, self.aldi_tokenizer = self.load_aldi() 
         self.nadi_model, self.nadi_tokenizer = self.load_nadi()
         self.lid_model = self.load_lid() 
         self.dialect = dialect
-        self.target_lang = target_lang 
-        self.config = config 
+        self.target_lang = target_lang  
 
         if self.config:
             self.hf_model_id = self.config['hf_name']
