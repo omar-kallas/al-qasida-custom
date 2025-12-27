@@ -8,14 +8,26 @@ this paper:
 Please cite:
 
 ```
-@misc{robinson2025alqasidaanalyzingllmquality,
-      title={AL-QASIDA: Analyzing LLM Quality and Accuracy Systematically in Dialectal Arabic},
-      author={Nathaniel R. Robinson and Shahd Abdelmoneim and Kelly Marchisio and Sebastian Ruder},
-      year={2025},
-      eprint={2412.04193},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2412.04193},
+@inproceedings{robinson-etal-2025-al,
+    title = "{AL}-{QASIDA}: Analyzing {LLM} Quality and Accuracy Systematically in Dialectal {A}rabic",
+    author = "Robinson, Nathaniel Romney  and
+      Abdelmoneim, Shahd  and
+      Marchisio, Kelly  and
+      Ruder, Sebastian",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2025",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-acl.1137/",
+    doi = "10.18653/v1/2025.findings-acl.1137",
+    pages = "22048--22065",
+    ISBN = "979-8-89176-256-5",
+    abstract = "Dialectal Arabic (DA) varieties are under-served by language technologies, particularly large language models (LLMs). This trend threatens to exacerbate existing social inequalities and limits LLM applications, yet the research community lacks operationalized performance measurements in DA. We present a framework that comprehensively assesses LLMs' DA modeling capabilities across four dimensions: fidelity, understanding, quality, and diglossia. We evaluate nine LLMs in eight DA varieties and provide practical recommendations. Our evaluation suggests that LLMs do not produce DA as well as they understand it, not because their DA fluency is poor, but because they are reluctant to generate DA. Further analysis suggests that current post-training can contribute to bias against DA, that few-shot examples can overcome this deficiency, and that otherwise no measurable features of input text correlate well with LLM DA performance."
 }
 ```
 
