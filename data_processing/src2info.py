@@ -48,7 +48,7 @@ SRC2INFO = {
         "lang_type": "city",
         "name": "MADAR-26",
         "genre": "btec",
-        "c2filter_str": {c: "split == '{MADAR_SPLIT}'" for c in COUNTRY2CITY},
+        "c2filter_str": {c: f"split == '{MADAR_SPLIT}'" for c in COUNTRY2CITY},
         "countries": [c for c in COUNTRY2CITY]
     },
     "nadi2023": {
