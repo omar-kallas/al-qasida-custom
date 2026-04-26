@@ -157,6 +157,9 @@ class BaseEvaluator():
 
         LLM_CACHE[cache_key] = loaded_model
         return loaded_model
+
+    def is_batched(self):
+        return self.config.get("batch_size", 1) > 1
     
     def get_run_llm(self, llm_type):
         run_type = llm_type + ''
@@ -168,7 +171,10 @@ class BaseEvaluator():
             else:
                 run_type = "llama"
         if run_type == "steered":
-            return self.run_steered
+            if self.is_batched():
+                return self.run_steered_batched
+            else:
+                return self.run_steered
         elif run_type == "jais":
             return self.run_non_pipeline 
         elif run_type in ["silma", "acegpt", "llama", "llama-base"]: 
@@ -431,9 +437,14 @@ class BaseEvaluator():
             f"Running LLM for {self.dialect} {self.llm_type}...", 
             flush=True
         )
-        outputs = self.run_llm(
-            [self.clean_prompt(prompt) for prompt in prompts]
-        )
+        if self.is_batched():
+            outputs = self.run_llm(
+                [self.clean_prompt(prompt) for prompt in prompts], batch_size=self.config['batch_size']
+            )
+        else:
+            outputs = self.run_llm(
+                [self.clean_prompt(prompt) for prompt in prompts]
+            )
         print(
             f"Getting scores for {self.dialect} {self.llm_type}...", 
             flush=True
