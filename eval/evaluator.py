@@ -369,16 +369,14 @@ class BaseEvaluator():
             if isinstance(batch_prompts[0], list):
                 batch_prompts = [prompt[-1]["content"] for prompt in batch_prompts]
             if vector is not None:
-                outs.append(
-                    generate_responses_steered_batched(
-                        self.llm,
-                        self.llm_tokenizer,
-                        batch_prompts,
-                        vector,
-                        layer,
-                        coef,
-                        max_new_tokens=GENERATION_LIMIT,
-                    )
+                outs += generate_responses_steered_batched(
+                    self.llm,
+                    self.llm_tokenizer,
+                    batch_prompts,
+                    vector,
+                    layer,
+                    coef,
+                    max_new_tokens=GENERATION_LIMIT,
                 )
             else:
                 for prompt in batch_prompts:
