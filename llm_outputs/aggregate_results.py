@@ -23,7 +23,7 @@ def parse_filename(path: Path) -> tuple[str, str]:
         return id_match.group("dataset"), id_match.group("dialect")
 
     mt_match = re.fullmatch(
-        r"DialectMT_(?P<dataset>.+)_(?P<src>[a-z]{3})_to_(?P<tgt>[a-z]{3})_metrics",
+        r"DialectMT_(?P<dataset>.+)_(?P<src>[a-z]{3})-(?P<tgt>[a-z]{3})_metrics",
         stem,
     )
     if mt_match:
@@ -31,14 +31,8 @@ def parse_filename(path: Path) -> tuple[str, str]:
         src = mt_match.group("src")
         tgt = mt_match.group("tgt")
 
-        if src in DIALECT_CODES and tgt in NON_DIALECT_LANGS:
-            return dataset, src
-        if tgt in DIALECT_CODES and src in NON_DIALECT_LANGS:
-            return dataset, tgt
-        if src in DIALECT_CODES:
-            return dataset, src
-        if tgt in DIALECT_CODES:
-            return dataset, tgt
+        if (src in DIALECT_CODES and tgt in NON_DIALECT_LANGS) or (tgt in DIALECT_CODES and src in NON_DIALECT_LANGS):
+            return dataset, f"{src}-{tgt}"
 
     raise ValueError(f"Cannot infer dataset and dialect code from {path.name}")
 

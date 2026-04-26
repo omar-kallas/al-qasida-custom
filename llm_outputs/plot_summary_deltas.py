@@ -51,26 +51,29 @@ def indexed_rows(rows: list[dict[str, str]]) -> dict[tuple[str, str, int], dict[
 def validate_pairing(
     target_rows: list[dict[str, str]],
     reference_rows: list[dict[str, str]],
-) -> tuple[dict[tuple[str, str, int], dict[str, str]], dict[tuple[str, str, int], dict[str, str]]]:
-    if len(target_rows) != len(reference_rows):
-        raise ValueError(
-            "summary files must have the same number of rows: "
-            f"target has {len(target_rows)}, reference has {len(reference_rows)}"
-        )
+) -> tuple[
+    dict[tuple[str, str, int], dict[str, str]],
+    dict[tuple[str, str, int], dict[str, str]],
+    Counter[tuple[str, str]],
+]:
+    target_indexed = indexed_rows(target_rows)
+    reference_indexed = indexed_rows(reference_rows)
+    matched_target = {}
+    matched_reference = {}
+    unmatched_target: Counter[tuple[str, str]] = Counter()
 
-    target_counts = Counter((row["dataset"], row["dialect_code"]) for row in target_rows)
-    reference_counts = Counter((row["dataset"], row["dialect_code"]) for row in reference_rows)
-    if target_counts != reference_counts:
-        target_only = target_counts - reference_counts
-        reference_only = reference_counts - target_counts
-        details = []
-        if target_only:
-            details.append(f"target-only combinations: {dict(target_only)}")
-        if reference_only:
-            details.append(f"reference-only combinations: {dict(reference_only)}")
-        raise ValueError("summary files do not contain the same dataset/dialect combinations; " + "; ".join(details))
+    for key, row in target_indexed.items():
+        if key in reference_indexed:
+            matched_target[key] = row
+            matched_reference[key] = reference_indexed[key]
+        else:
+            dataset, dialect_code, _ = key
+            unmatched_target[(dataset, dialect_code)] += 1
 
-    return indexed_rows(target_rows), indexed_rows(reference_rows)
+    if not matched_target:
+        raise ValueError("target and reference summaries have no common dataset/dialect rows")
+
+    return matched_target, matched_reference, unmatched_target
 
 
 def parse_float(value: str) -> float | None:
@@ -305,7 +308,7 @@ def main() -> int:
         if args.metric not in reference_fields:
             raise ValueError(f"{reference_path} is missing metric column '{args.metric}'")
 
-        target_indexed, reference_indexed = validate_pairing(target_rows, reference_rows)
+        target_indexed, reference_indexed, unmatched_target = validate_pairing(target_rows, reference_rows)
         deltas, skipped = compute_grouped_deltas(target_indexed, reference_indexed, args.metric)
         plot_deltas(deltas, args.metric, target_path, reference_path, output_path)
     except ValueError as exc:
@@ -313,6 +316,13 @@ def main() -> int:
         return 1
 
     print(f"Wrote delta plot to {output_path}")
+    if unmatched_target:
+        print(
+            f"Flagged {sum(unmatched_target.values())} target row(s) without a reference match:",
+            file=sys.stderr,
+        )
+        for (dataset, dialect_code), count in sorted(unmatched_target.items()):
+            print(f"  {dataset}/{dialect_code}: {count}", file=sys.stderr)
     if skipped:
         print(f"Skipped {skipped} row(s) with missing or non-numeric '{args.metric}' values")
     return 0
