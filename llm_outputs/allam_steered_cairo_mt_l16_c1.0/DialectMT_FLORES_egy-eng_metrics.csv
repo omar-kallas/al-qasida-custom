@@ -1,0 +1,2 @@
+prob,dialectness,score,macro_score,SpBLEU_corpus_score,ChrF_corpus_score
+0.0,0.0,0.0,0.0,0.015222007430569139,0.11645557866182203
