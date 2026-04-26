@@ -89,7 +89,7 @@ class OutDataOrganizer():
         self.task = task 
         self.reports_dir = reports_dir
         if layer and coef:
-            self.dirname = f"{self.llm}_l{layer}_c{coef}_{self.task}" 
+            self.dirname = f"{self.llm}_{self.task}_l{layer}_c{coef}" 
         else:
             self.dirname = f"{self.llm}_{self.task}" 
         # We want an organization like this:
