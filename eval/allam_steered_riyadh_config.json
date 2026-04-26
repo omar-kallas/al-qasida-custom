@@ -4,5 +4,6 @@
     "prefixes": {},
     "vector_path": "../../arabic_steering_vector/dialect_vectors/ALLaM-7B-Instruct-preview/Riyadh_response_avg_diff.pt",
     "layer": 16,
-    "coef": 3.0
+    "coef": 3.0,
+    "batch_size": 4
 }
