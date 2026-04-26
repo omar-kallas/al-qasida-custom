@@ -623,7 +623,9 @@ def run_evaluation(
             data_dict=output_organization, 
             llm=llm, 
             task=task, 
-            reports_dir=out_dir
+            reports_dir=out_dir,
+            layer=config.get("layer", ""),
+            coef=config.get("coef", ""),
         )
         out_data_organizer.organize_data()
 

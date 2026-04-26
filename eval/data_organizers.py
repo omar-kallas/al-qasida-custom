@@ -82,12 +82,16 @@ class InDataOrganizer():
         return organization
 
 class OutDataOrganizer():
-    def __init__(self, data_dict, llm, task, reports_dir):
+    def __init__(self, data_dict, llm, task, reports_dir, layer="", coef=""):
         # data_dict maps genre -> dialect -> metric -> mean score
         self.data_dict = data_dict  
         self.llm = llm 
         self.task = task 
-        self.reports_dir = reports_dir 
+        self.reports_dir = reports_dir
+        if layer and coef:
+            self.dirname = f"{self.llm}_l{layer}_c{coef}_{self.task}" 
+        else:
+            self.dirname = f"{self.llm}_{self.task}" 
         # We want an organization like this:
         # - llm and task in dir name (e.g. command_r_monolingual)
         # - genre and dialect in filename 
@@ -95,7 +99,7 @@ class OutDataOrganizer():
         # - metrics are column names in single-row csv 
     
     def organize_data(self): 
-        dirname = f"{self.llm}_{self.task}" 
+        dirname = self.dirname
         out_dir = os.path.join(self.reports_dir, dirname) 
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
