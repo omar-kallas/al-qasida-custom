@@ -74,7 +74,6 @@ TASK2NSHOT_SUFFIX = {
     "monolingual": "\nA: "
 }
 GENERATION_LIMIT = 128
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LLM_CACHE = {}
 VECTOR_CACHE = {}
 
@@ -134,7 +133,7 @@ class BaseEvaluator():
             }
             load_type = mapping[self.config["load_model_type"]]
 
-        cache_key = (load_type, self.hf_model_id, DEVICE)
+        cache_key = (load_type, self.hf_model_id)
         if cache_key in LLM_CACHE:
             print(
                 f"Reusing cached {load_type} model: {self.hf_model_id}",
@@ -266,14 +265,14 @@ class BaseEvaluator():
         tokenizer = AutoTokenizer.from_pretrained(
             self.hf_model_id, 
             use_auth_token=HF_TOKEN,
-            device=DEVICE
         )
         model = AutoModelForCausalLM.from_pretrained(
             self.hf_model_id, 
-            device_map={"": DEVICE}, 
+            device_map="auto", 
             trust_remote_code=True, 
             use_auth_token=HF_TOKEN,
-        ).to(torch.device(DEVICE))
+            torch_dtype=torch.float16,
+        )
         return model, tokenizer
     
     def load_ungated_pipeline(self, option="silma"): 
@@ -282,7 +281,7 @@ class BaseEvaluator():
             "text-generation", 
             model=self.hf_model_id, 
             model_kwargs={"torch_dtype": torch.bfloat16}, 
-            device=DEVICE, # HACK 
+            device_map="auto", # HACK 
         ) 
         return pipe, None 
     
@@ -292,7 +291,7 @@ class BaseEvaluator():
             "text-generation", 
             model=self.hf_model_id, 
             model_kwargs={"torch_dtype": torch.bfloat16}, 
-            device=DEVICE, 
+            device_map="auto", 
             token=HF_TOKEN
         ) 
         return pipe, None  
