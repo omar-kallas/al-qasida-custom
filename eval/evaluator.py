@@ -35,6 +35,23 @@ from maps import (
     TASK2DIALECTS
 )
 
+from pathlib import Path
+import sys
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+STEERING_DIR = REPO_ROOT / "arabic_steering_vector"
+
+for path in (REPO_ROOT, STEERING_DIR):
+    path = str(path)
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+from arabic_steering_vector.steer_dialect_and_compare import (
+    generate_response, 
+    generate_response_steered, 
+    generate_responses_steered_batched
+)
+
 SUPPORTED_MODELS = ["jais", "acegpt", "silma", "llama", "llama-base"]
 MOD2HF_NAME = {
     "jais": "core42/jais-13b",
@@ -58,6 +75,8 @@ TASK2NSHOT_SUFFIX = {
 }
 GENERATION_LIMIT = 128
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+LLM_CACHE = {}
+VECTOR_CACHE = {}
 
 fT_model_path = hf_hub_download(
     repo_id="facebook/fasttext-language-identification", 
@@ -110,27 +129,46 @@ class BaseEvaluator():
             mapping = {
                 "non-pipeline": "jais", 
                 "gated-pipeline": "llama", 
-                "ungated-pipeline": "silma"
+                "ungated-pipeline": "silma",
+                "steered-pipeline": "steered",
             }
             load_type = mapping[self.config["load_model_type"]]
+
+        cache_key = (load_type, self.hf_model_id, DEVICE)
+        if cache_key in LLM_CACHE:
+            print(
+                f"Reusing cached {load_type} model: {self.hf_model_id}",
+                flush=True
+            )
+            return LLM_CACHE[cache_key]
+
+        if load_type == "steered":
+            loaded_model = self.load_non_pipeline() 
         elif load_type == "jais":
-            return self.load_non_pipeline() 
+            loaded_model = self.load_non_pipeline() 
         elif load_type in ["silma", "acegpt"]: 
-            return self.load_ungated_pipeline(llm_type) 
+            loaded_model = self.load_ungated_pipeline(llm_type) 
         elif load_type.startswith("llama"):
-            return self.load_gated_pipeline() 
+            loaded_model = self.load_gated_pipeline() 
         else:  
             raise NotImplementedError(
                 f"{llm_type} not in {SUPPORTED_MODELS} & no config specified"
             )
+
+        LLM_CACHE[cache_key] = loaded_model
+        return loaded_model
     
     def get_run_llm(self, llm_type):
         run_type = llm_type + ''
         if self.config:
             if self.config["load_model_type"] == "non-pipeline":
                 run_type = "jais"
+            elif self.config["load_model_type"] == "steered-pipeline":
+                run_type = "steered"
             else:
                 run_type = "llama"
+        if run_type == "steered":
+            return self.run_steered
         elif run_type == "jais":
             return self.run_non_pipeline 
         elif run_type in ["silma", "acegpt", "llama", "llama-base"]: 
@@ -145,6 +183,10 @@ class BaseEvaluator():
     
     def clean_text(self, text):
         return text.replace("\n", " ") # Add other cleaning steps here
+
+    def clean_prompt(self, prompt):
+        prompt = [{'role': prompt[0]['role'], 'content': self.clean_text(prompt[0]['content'])}]
+        return prompt
 
     def get_macro_prob(self, probabilities, dialect):
         return sum([
@@ -261,6 +303,88 @@ class BaseEvaluator():
                 ) 
             )
         return outs 
+
+    def get_steering_vector(self, vector_path, layer):
+        cache_key = (vector_path, layer)
+        if cache_key in VECTOR_CACHE:
+            return VECTOR_CACHE[cache_key]
+        
+        all_layers = torch.load(vector_path, weights_only=False)
+        vector = all_layers[layer]
+        VECTOR_CACHE[cache_key] = vector
+        return vector
+
+    def run_steered(self, prompts): 
+        vector_path = self.config.get('vector_path')
+        layer = self.config.get('layer')
+        coef = self.config.get('coef', 3.0)
+        vector = self.get_steering_vector(vector_path, layer) if vector_path and layer else None
+
+        outs = []
+        for prompt in tqdm(prompts):
+            if isinstance(prompt, list):
+                prompt = prompt[-1]["content"]
+            if vector is not None:
+                outs.append(
+                    generate_response_steered(
+                        self.llm,
+                        self.llm_tokenizer,
+                        prompt,
+                        vector,
+                        layer,
+                        coef,
+                        max_new_tokens=GENERATION_LIMIT,
+                    )
+                )
+            else:
+                outs.append(
+                    generate_response(
+                        self.llm,
+                        self.llm_tokenizer,
+                        prompt,
+                        max_new_tokens=GENERATION_LIMIT,
+                    )
+                )
+        return outs
+
+    def run_steered_batched(self, prompts, batch_size=4): 
+        vector_path = self.config.get('vector_path')
+        layer = self.config.get('layer')
+        coef = self.config.get('coef', 3.0)
+        vector = self.get_steering_vector(vector_path, layer) if vector_path and layer else None
+
+        if self.llm_tokenizer.pad_token is None:
+            self.llm_tokenizer.pad_token = self.llm_tokenizer.eos_token
+
+        batch_points = [i for i in range(len(prompts)) if i % batch_size == 0]
+        outs = []
+        for batch_point in tqdm(batch_points):
+            batch_prompts = prompts[batch_point: batch_point + batch_size]
+            if isinstance(batch_prompts[0], list):
+                batch_prompts = [prompt[-1]["content"] for prompt in batch_prompts]
+            if vector is not None:
+                outs.append(
+                    generate_responses_steered_batched(
+                        self.llm,
+                        self.llm_tokenizer,
+                        batch_prompts,
+                        vector,
+                        layer,
+                        coef,
+                        max_new_tokens=GENERATION_LIMIT,
+                    )
+                )
+            else:
+                for prompt in batch_prompts:
+                    outs.append(
+                        generate_response(
+                            self.llm,
+                            self.llm_tokenizer,
+                            prompt,
+                            max_new_tokens=GENERATION_LIMIT,
+                        )
+                    )
+        return outs
     
     def run_hf_pipeline(self, prompts, batch_size=50):
         is_instruct = type(prompts[0]) == list
@@ -270,9 +394,8 @@ class BaseEvaluator():
             batch_prompts = prompts[batch_point: batch_point + batch_size]
             if is_instruct:
                 outs_here = [
-                    item[0]['generated_text'][-1][
-                        'content'
-                    ] for item in self.llm(
+                    item[0]['generated_text']
+                    for item in self.llm(
                         batch_prompts,  
                         return_full_text=False, 
                         max_new_tokens=GENERATION_LIMIT,
@@ -309,7 +432,7 @@ class BaseEvaluator():
             flush=True
         )
         outputs = self.run_llm(
-            [self.clean_text(prompt) for prompt in prompts]
+            [self.clean_prompt(prompt) for prompt in prompts]
         )
         print(
             f"Getting scores for {self.dialect} {self.llm_type}...", 
@@ -574,7 +697,7 @@ if __name__ == "__main__":
         dialects=dialects,
         test_bool=args.test,
         nshot=args.nshot,
+        use_config=args.use_config
     )
-
 
 

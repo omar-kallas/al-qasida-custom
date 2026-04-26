@@ -1,0 +1,8 @@
+{
+    "load_model_type": "steered-pipeline",
+    "hf_name": "humain-ai/ALLaM-7B-Instruct-preview",
+    "prefixes": {},
+    "vector_path": "../../arabic_steering_vector/dialect_vectors/ALLaM-7B-Instruct-preview/Cairo_response_avg_diff.pt",
+    "layer": 16,
+    "coef": 3.0
+}

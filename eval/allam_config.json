@@ -1,0 +1,5 @@
+{
+    "load_model_type": "steered-pipeline",
+    "hf_name": "humain-ai/ALLaM-7B-Instruct-preview",
+    "prefixes": {}
+}
