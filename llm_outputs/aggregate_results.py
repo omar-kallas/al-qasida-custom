@@ -17,7 +17,6 @@ NON_DIALECT_LANGS = {"eng", "msa"}
 def parse_filename(path: Path) -> tuple[str, str]:
     """Return (dataset, dialect_code) inferred from a metrics filename."""
     stem = path.stem
-
     id_match = re.fullmatch(r"DialectID_(?P<dataset>.+)_(?P<dialect>[a-z]{3})_metrics", stem)
     if id_match:
         return id_match.group("dataset"), id_match.group("dialect")

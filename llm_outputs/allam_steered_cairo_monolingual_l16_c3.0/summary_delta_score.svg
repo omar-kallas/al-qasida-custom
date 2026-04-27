@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="350" viewBox="0 0 360 350">
+<style>
+text { font-family: DejaVu Sans, Arial, sans-serif; fill: #222; }
+.title { font-size: 18px; font-weight: 700; }
+.panel-title { font-size: 14px; font-weight: 700; }
+.tick { font-size: 10px; }
+.label { font-size: 12px; }
+.grid { stroke: #d9d9d9; stroke-width: 1; }
+.axis { stroke: #222; stroke-width: 1; }
+</style>
+<text class="title" x="180.0" y="28" text-anchor="middle">allam_steered_cairo_monolingual_l16_c3.0</text>
+<text class="label" x="180.0" y="342" text-anchor="middle">Dataset</text>
+<text class="label" transform="translate(16 175.0) rotate(-90)" text-anchor="middle">Absolute change from reference</text>
+<text class="panel-title" x="200.0" y="81" text-anchor="middle">egy</text>
+<line class="grid" x1="70" y1="210.00" x2="330" y2="210.00" />
+<text class="tick" x="64" y="213.00" text-anchor="end">-0.437</text>
+<line class="grid" x1="70" y1="181.25" x2="330" y2="181.25" />
+<text class="tick" x="64" y="184.25" text-anchor="end">-0.219</text>
+<line class="axis" x1="70" y1="152.50" x2="330" y2="152.50" />
+<text class="tick" x="64" y="155.50" text-anchor="end">0</text>
+<line class="grid" x1="70" y1="123.75" x2="330" y2="123.75" />
+<text class="tick" x="64" y="126.75" text-anchor="end">0.219</text>
+<line class="grid" x1="70" y1="95.00" x2="330" y2="95.00" />
+<text class="tick" x="64" y="98.00" text-anchor="end">0.437</text>
+<line class="axis" x1="70" y1="95" x2="70" y2="210" />
+<rect x="92.33" y="102.50" width="42.00" height="50.00" fill="#1f77b4" />
+<text class="tick" transform="translate(113.33 222.00) rotate(-45)" text-anchor="end">BTEC</text>
+<rect x="179.00" y="111.45" width="42.00" height="41.05" fill="#1f77b4" />
+<text class="tick" transform="translate(200.00 222.00) rotate(-45)" text-anchor="end">FLORES</text>
+<rect x="265.67" y="105.02" width="42.00" height="47.48" fill="#1f77b4" />
+<text class="tick" transform="translate(286.67 222.00) rotate(-45)" text-anchor="end">HABIBI</text>
+</svg>
