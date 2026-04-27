@@ -66,6 +66,15 @@ def parse_float(value: str | None) -> float | None:
         return None
 
 
+def dialect_matches(dialect_code: str, selected: set[str] | None) -> bool:
+    if not selected:
+        return True
+    if dialect_code in selected:
+        return True
+    parts = set(dialect_code.split("-"))
+    return bool(parts & selected)
+
+
 def is_score_column(column: str) -> bool:
     return column == "score" or column.endswith("_score")
 
@@ -91,6 +100,7 @@ def mean_metric_delta(
     target_rows: list[dict[str, str]],
     reference_rows: list[dict[str, str]],
     metric: str,
+    dialects: set[str] | None,
 ) -> tuple[float, int, int]:
     target_index = indexed_rows(target_rows)
     reference_index = indexed_rows(reference_rows)
@@ -98,6 +108,10 @@ def mean_metric_delta(
     skipped = 0
 
     for key, target_row in target_index.items():
+        _, dialect_code, _ = key
+        if not dialect_matches(dialect_code, dialects):
+            continue
+
         reference_row = reference_index.get(key)
         if reference_row is None:
             continue
@@ -110,7 +124,8 @@ def mean_metric_delta(
         deltas.append(target_value - reference_value)
 
     if not deltas:
-        raise ValueError(f"no paired numeric values found for metric '{metric}'")
+        dialect_note = f" for dialect filter {', '.join(sorted(dialects))}" if dialects else ""
+        raise ValueError(f"no paired numeric values found for metric '{metric}'{dialect_note}")
 
     return sum(deltas) / len(deltas), len(deltas), skipped
 
@@ -314,6 +329,15 @@ def main() -> int:
     parser.add_argument("--output", "-o", type=Path, help="Output plot path. Defaults beside the reference directory.")
     parser.add_argument("--metrics", "-m", nargs="+", help="Metric columns to plot. Defaults to common score columns.")
     parser.add_argument(
+        "--dialects",
+        "-d",
+        nargs="+",
+        help=(
+            "Dialect codes to include before averaging. Exact codes match directly; "
+            "single components like egy also match MT codes such as egy-eng and eng-egy."
+        ),
+    )
+    parser.add_argument(
         "--x",
         choices=("auto", "name", "last-number"),
         default="auto",
@@ -343,13 +367,14 @@ def main() -> int:
             field_sets.append(fields)
 
         metrics = score_columns(field_sets, args.metrics)
+        selected_dialects = set(args.dialects) if args.dialects else None
         deltas = {metric: [] for metric in metrics}
         skipped_total = Counter()
         paired_counts = Counter()
 
         for directory, rows in target_data:
             for metric in metrics:
-                delta, paired_count, skipped = mean_metric_delta(rows, reference_rows, metric)
+                delta, paired_count, skipped = mean_metric_delta(rows, reference_rows, metric, selected_dialects)
                 deltas[metric].append(delta)
                 paired_counts[metric] += paired_count
                 skipped_total[metric] += skipped
@@ -367,6 +392,8 @@ def main() -> int:
     print(f"Wrote delta plot to {output_path}")
     print(f"Compared {len(target_dirs)} target director{'y' if len(target_dirs) == 1 else 'ies'} against {reference_dir}")
     print(f"Plotted metrics: {', '.join(metrics)}")
+    if args.dialects:
+        print(f"Filtered dialects: {', '.join(args.dialects)}")
     for metric in metrics:
         if skipped_total[metric]:
             print(f"Skipped {skipped_total[metric]} row(s) with missing/non-numeric {metric} values")
