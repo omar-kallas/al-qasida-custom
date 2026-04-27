@@ -533,6 +533,9 @@ def run_evaluation(
     else:
         config = None
 
+    if config.get('layer') and config.get('coef'):
+        out_pkl += f"_l{config.get('layer')}_c{config.get('coef')}"
+
     # Set up nshots
     lang2prefix = {}
     if nshot:
@@ -628,6 +631,17 @@ def run_evaluation(
             coef=config.get("coef", ""),
         )
         out_data_organizer.organize_data()
+
+        out_samples_organizer = OutDataOrganizer(
+            data_dict=out_prompt_organization, 
+            llm=llm, 
+            task=task, 
+            reports_dir=out_dir,
+            layer=config.get("layer", ""),
+            coef=config.get("coef", ""),
+            mode="completions"
+        )
+        out_samples_organizer.organize_data()
 
 if __name__ == "__main__":
 

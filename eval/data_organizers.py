@@ -82,12 +82,13 @@ class InDataOrganizer():
         return organization
 
 class OutDataOrganizer():
-    def __init__(self, data_dict, llm, task, reports_dir, layer="", coef=""):
+    def __init__(self, data_dict, llm, task, reports_dir, layer="", coef="", mode="scores"):
         # data_dict maps genre -> dialect -> metric -> mean score
         self.data_dict = data_dict  
         self.llm = llm 
         self.task = task 
         self.reports_dir = reports_dir
+        self.mode = mode
         if layer and coef:
             self.dirname = f"{self.llm}_{self.task}_l{layer}_c{coef}" 
         else:
@@ -107,13 +108,19 @@ class OutDataOrganizer():
         for genre in self.data_dict:
             for dialect in self.data_dict[genre]:
                 genre_str = GENRE2STR[genre]
-                csv_file = f"Dialect{id_2letters}_{genre_str}"\
-                    f"_{dialect}_metrics.csv"
-                csv_data = {
-                    metric: [
-                        float(self.data_dict[genre][dialect][metric])
-                    ] for metric in self.data_dict[genre][dialect]
-                }
+                if self.mode == "scores":
+                    csv_file = f"Dialect{id_2letters}_{genre_str}"\
+                        f"_{dialect}_metrics.csv"
+                    csv_data = {
+                        metric: [
+                            float(self.data_dict[genre][dialect][metric])
+                        ] for metric in self.data_dict[genre][dialect]
+                    }
+                elif self.mode == "completions":
+                    csv_file = f"Dialect{id_2letters}_{genre_str}"\
+                        f"_{dialect}_samples.csv"
+                    csv_data = {'text': [text for text in self.data_dict[genre][dialect]]}
+
                 csv_df = pd.DataFrame(csv_data)
                 out_path = os.path.join(out_dir, csv_file)
                 csv_df.to_csv(out_path, index=False)
@@ -124,14 +131,16 @@ if __name__  == "__main__":
     parser = argparse.ArgumentParser() 
     parser.add_argument("--data-pkl", required=True, type=str)
     parser.add_argument("--llm", default="llama", type=str)
+    parser.add_argument("--layer", default="scores", type=str)
+    parser.add_argument("--coef", default="scores", type=str)
     parser.add_argument("--task", default="monolingual", type=str)
+    parser.add_argument("--mode", default="scores", type=str)
     parser.add_argument("--out-dir", default="../llm_outputs", type=str)
     args = parser.parse_args() 
 
     with open(args.data_pkl, 'rb') as f:
         data_dict = pkl.load(f)
-
     out_organizer = OutDataOrganizer(
-        data_dict, args.llm, args.task, args.out_dir
+        data_dict, args.llm, args.task, args.out_dir, layer=args.layer, coef=args.coef, mode=args.mode
     )
     out_organizer.organize_data()
