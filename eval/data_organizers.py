@@ -119,7 +119,7 @@ class OutDataOrganizer():
                 elif self.mode == "completions":
                     csv_file = f"Dialect{id_2letters}_{genre_str}"\
                         f"_{dialect}_samples.csv"
-                    csv_data = {'text': [text for text in self.data_dict[genre][dialect]]}
+                    csv_data = {'text': [text.replace("\n", "\\n") for text in self.data_dict[genre][dialect]]}
 
                 csv_df = pd.DataFrame(csv_data)
                 out_path = os.path.join(out_dir, csv_file)
@@ -131,8 +131,8 @@ if __name__  == "__main__":
     parser = argparse.ArgumentParser() 
     parser.add_argument("--data-pkl", required=True, type=str)
     parser.add_argument("--llm", default="llama", type=str)
-    parser.add_argument("--layer", default="scores", type=str)
-    parser.add_argument("--coef", default="scores", type=str)
+    parser.add_argument("--layer", type=str)
+    parser.add_argument("--coef", type=str)
     parser.add_argument("--task", default="monolingual", type=str)
     parser.add_argument("--mode", default="scores", type=str)
     parser.add_argument("--out-dir", default="../llm_outputs", type=str)
