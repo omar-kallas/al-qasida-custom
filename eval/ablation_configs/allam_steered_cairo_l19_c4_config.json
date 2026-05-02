@@ -3,7 +3,7 @@
     "hf_name": "humain-ai/ALLaM-7B-Instruct-preview",
     "prefixes": {},
     "vector_path": "../../arabic_steering_vector/dialect_vectors/ALLaM-7B-Instruct-preview/Cairo_response_avg_diff.pt",
-    "layer": 14,
-    "coef": 3.0,
-    "batch_size": 4
+    "batch_size": 4,
+    "layer": 19,
+    "coef": 4.0
 }
