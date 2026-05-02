@@ -1,48 +1,8 @@
-# al-qasida
+This repo is forked from the official Al-Qasida repo https://github.com/JHU-CLSP/al-qasida, please follow instructions below (original repo README) for usage, including data_processing and evaluation.
+The modifications in this repo are meant to be used to evaluate steered LLMs in this repo https://github.com/KareemElozeiri/SteeringArabicDialects
+To apply them, this repo must be cloned inside the `SteeringArabicDialects` repo and run there.
 
-Welcome! This is the official repo for AL-QASIDA (Robinson et al., 2025), 
-the first comprehensive evaluation for LLM dialectal Arabic proficiency, presented in 
-this paper: 
-[AL-QASIDA: **A**nalyzing **L**LM **Q**uality and **A**ccuracy **S**ystematically **i**n **D**ialectal **A**rabic](https://arxiv.org/abs/2412.04193)
-
-Please cite:
-
-```
-@inproceedings{robinson-etal-2025-al,
-    title = "{AL}-{QASIDA}: Analyzing {LLM} Quality and Accuracy Systematically in Dialectal {A}rabic",
-    author = "Robinson, Nathaniel Romney  and
-      Abdelmoneim, Shahd  and
-      Marchisio, Kelly  and
-      Ruder, Sebastian",
-    editor = "Che, Wanxiang  and
-      Nabende, Joyce  and
-      Shutova, Ekaterina  and
-      Pilehvar, Mohammad Taher",
-    booktitle = "Findings of the Association for Computational Linguistics: ACL 2025",
-    month = jul,
-    year = "2025",
-    address = "Vienna, Austria",
-    publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/2025.findings-acl.1137/",
-    doi = "10.18653/v1/2025.findings-acl.1137",
-    pages = "22048--22065",
-    ISBN = "979-8-89176-256-5",
-    abstract = "Dialectal Arabic (DA) varieties are under-served by language technologies, particularly large language models (LLMs). This trend threatens to exacerbate existing social inequalities and limits LLM applications, yet the research community lacks operationalized performance measurements in DA. We present a framework that comprehensively assesses LLMs' DA modeling capabilities across four dimensions: fidelity, understanding, quality, and diglossia. We evaluate nine LLMs in eight DA varieties and provide practical recommendations. Our evaluation suggests that LLMs do not produce DA as well as they understand it, not because their DA fluency is poor, but because they are reluctant to generate DA. Further analysis suggests that current post-training can contribute to bias against DA, that few-shot examples can overcome this deficiency, and that otherwise no measurable features of input text correlate well with LLM DA performance."
-}
-```
-
-⚠️ Recent updates:
-
-- 3 Dec 2025 - Switch to using templative prompts by default for models labeled "Instruct"
-
-- 11 Nov 2025 - Note this repo has been updated to be used for *dev* by default, rather than testing (for the [AMIYA](https://sites.google.com/view/vardial-2026/shared-tasks) shared task)
-
-## Current to-dos 
-
-To update soon:
-- 🚧 I noticed an issue that the `pre_humeval` outputs for MT tasks are not getting written properly without use of `eval/correct_scores.py`, due to absense of `llm_outputs/**/*samples*` files. Need to address this ASAP.
-- 🚧 Need to rename hehe --> cohere, TVD --> ADI2
-- 🚧 Make tutorial video in Arabic
+The below content is all from the original alqasida repo
 
 ## Tutorial video
 
