@@ -1,0 +1,214 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="630" viewBox="0 0 1440 630">
+<style>
+text { font-family: DejaVu Sans, Arial, sans-serif; fill: #222; }
+.title { font-size: 18px; font-weight: 700; }
+.panel-title { font-size: 14px; font-weight: 700; }
+.tick { font-size: 10px; }
+.label { font-size: 12px; }
+.grid { stroke: #d9d9d9; stroke-width: 1; }
+.axis { stroke: #222; stroke-width: 1; }
+</style>
+<text class="title" x="720.0" y="28" text-anchor="middle">llm_outputs</text>
+<text class="label" x="720.0" y="622" text-anchor="middle">Dataset</text>
+<text class="label" transform="translate(16 315.0) rotate(-90)" text-anchor="middle">Absolute change from reference</text>
+<text class="panel-title" x="200.0" y="81" text-anchor="middle">dza</text>
+<line class="grid" x1="70" y1="210.00" x2="330" y2="210.00" />
+<text class="tick" x="64" y="213.00" text-anchor="end">-1</text>
+<line class="grid" x1="70" y1="181.25" x2="330" y2="181.25" />
+<text class="tick" x="64" y="184.25" text-anchor="end">-0.5</text>
+<line class="axis" x1="70" y1="152.50" x2="330" y2="152.50" />
+<text class="tick" x="64" y="155.50" text-anchor="end">0</text>
+<line class="grid" x1="70" y1="123.75" x2="330" y2="123.75" />
+<text class="tick" x="64" y="126.75" text-anchor="end">0.5</text>
+<line class="grid" x1="70" y1="95.00" x2="330" y2="95.00" />
+<text class="tick" x="64" y="98.00" text-anchor="end">1</text>
+<line class="axis" x1="70" y1="95" x2="70" y2="210" />
+<rect x="76.50" y="152.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(91.67 222.00) rotate(-45)" text-anchor="end">BTEC</text>
+<rect x="119.83" y="152.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(135.00 222.00) rotate(-45)" text-anchor="end">Cohere</text>
+<rect x="163.17" y="152.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(178.33 222.00) rotate(-45)" text-anchor="end">HABIBI</text>
+<rect x="206.50" y="152.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(221.67 222.00) rotate(-45)" text-anchor="end">Okapi</text>
+<rect x="249.83" y="152.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(265.00 222.00) rotate(-45)" text-anchor="end">ShareGPT</text>
+<rect x="293.17" y="152.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(308.33 222.00) rotate(-45)" text-anchor="end">TWEET</text>
+<text class="panel-title" x="560.0" y="81" text-anchor="middle">egy</text>
+<line class="grid" x1="430" y1="210.00" x2="690" y2="210.00" />
+<text class="tick" x="424" y="213.00" text-anchor="end">-1</text>
+<line class="grid" x1="430" y1="181.25" x2="690" y2="181.25" />
+<text class="tick" x="424" y="184.25" text-anchor="end">-0.5</text>
+<line class="axis" x1="430" y1="152.50" x2="690" y2="152.50" />
+<text class="tick" x="424" y="155.50" text-anchor="end">0</text>
+<line class="grid" x1="430" y1="123.75" x2="690" y2="123.75" />
+<text class="tick" x="424" y="126.75" text-anchor="end">0.5</text>
+<line class="grid" x1="430" y1="95.00" x2="690" y2="95.00" />
+<text class="tick" x="424" y="98.00" text-anchor="end">1</text>
+<line class="axis" x1="430" y1="95" x2="430" y2="210" />
+<rect x="435.57" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(448.57 222.00) rotate(-45)" text-anchor="end">BTEC</text>
+<rect x="472.71" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(485.71 222.00) rotate(-45)" text-anchor="end">Cohere</text>
+<rect x="509.86" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(522.86 222.00) rotate(-45)" text-anchor="end">FLORES</text>
+<rect x="547.00" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(560.00 222.00) rotate(-45)" text-anchor="end">HABIBI</text>
+<rect x="584.14" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(597.14 222.00) rotate(-45)" text-anchor="end">Okapi</text>
+<rect x="621.29" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(634.29 222.00) rotate(-45)" text-anchor="end">ShareGPT</text>
+<rect x="658.43" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(671.43 222.00) rotate(-45)" text-anchor="end">TWEET</text>
+<text class="panel-title" x="920.0" y="81" text-anchor="middle">kwt</text>
+<line class="grid" x1="790" y1="210.00" x2="1050" y2="210.00" />
+<text class="tick" x="784" y="213.00" text-anchor="end">-1</text>
+<line class="grid" x1="790" y1="181.25" x2="1050" y2="181.25" />
+<text class="tick" x="784" y="184.25" text-anchor="end">-0.5</text>
+<line class="axis" x1="790" y1="152.50" x2="1050" y2="152.50" />
+<text class="tick" x="784" y="155.50" text-anchor="end">0</text>
+<line class="grid" x1="790" y1="123.75" x2="1050" y2="123.75" />
+<text class="tick" x="784" y="126.75" text-anchor="end">0.5</text>
+<line class="grid" x1="790" y1="95.00" x2="1050" y2="95.00" />
+<text class="tick" x="784" y="98.00" text-anchor="end">1</text>
+<line class="axis" x1="790" y1="95" x2="790" y2="210" />
+<rect x="797.80" y="152.50" width="36.40" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(816.00 222.00) rotate(-45)" text-anchor="end">Cohere</text>
+<rect x="849.80" y="152.50" width="36.40" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(868.00 222.00) rotate(-45)" text-anchor="end">HABIBI</text>
+<rect x="901.80" y="152.50" width="36.40" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(920.00 222.00) rotate(-45)" text-anchor="end">Okapi</text>
+<rect x="953.80" y="152.50" width="36.40" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(972.00 222.00) rotate(-45)" text-anchor="end">ShareGPT</text>
+<rect x="1005.80" y="152.50" width="36.40" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1024.00 222.00) rotate(-45)" text-anchor="end">TWEET</text>
+<text class="panel-title" x="1280.0" y="81" text-anchor="middle">mar</text>
+<line class="grid" x1="1150" y1="210.00" x2="1410" y2="210.00" />
+<text class="tick" x="1144" y="213.00" text-anchor="end">-1</text>
+<line class="grid" x1="1150" y1="181.25" x2="1410" y2="181.25" />
+<text class="tick" x="1144" y="184.25" text-anchor="end">-0.5</text>
+<line class="axis" x1="1150" y1="152.50" x2="1410" y2="152.50" />
+<text class="tick" x="1144" y="155.50" text-anchor="end">0</text>
+<line class="grid" x1="1150" y1="123.75" x2="1410" y2="123.75" />
+<text class="tick" x="1144" y="126.75" text-anchor="end">0.5</text>
+<line class="grid" x1="1150" y1="95.00" x2="1410" y2="95.00" />
+<text class="tick" x="1144" y="98.00" text-anchor="end">1</text>
+<line class="axis" x1="1150" y1="95" x2="1150" y2="210" />
+<rect x="1155.57" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1168.57 222.00) rotate(-45)" text-anchor="end">BTEC</text>
+<rect x="1192.71" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1205.71 222.00) rotate(-45)" text-anchor="end">Cohere</text>
+<rect x="1229.86" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1242.86 222.00) rotate(-45)" text-anchor="end">FLORES</text>
+<rect x="1267.00" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1280.00 222.00) rotate(-45)" text-anchor="end">HABIBI</text>
+<rect x="1304.14" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1317.14 222.00) rotate(-45)" text-anchor="end">Okapi</text>
+<rect x="1341.29" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1354.29 222.00) rotate(-45)" text-anchor="end">ShareGPT</text>
+<rect x="1378.43" y="152.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1391.43 222.00) rotate(-45)" text-anchor="end">TWEET</text>
+<text class="panel-title" x="200.0" y="361" text-anchor="middle">pse</text>
+<line class="grid" x1="70" y1="490.00" x2="330" y2="490.00" />
+<text class="tick" x="64" y="493.00" text-anchor="end">-1</text>
+<line class="grid" x1="70" y1="461.25" x2="330" y2="461.25" />
+<text class="tick" x="64" y="464.25" text-anchor="end">-0.5</text>
+<line class="axis" x1="70" y1="432.50" x2="330" y2="432.50" />
+<text class="tick" x="64" y="435.50" text-anchor="end">0</text>
+<line class="grid" x1="70" y1="403.75" x2="330" y2="403.75" />
+<text class="tick" x="64" y="406.75" text-anchor="end">0.5</text>
+<line class="grid" x1="70" y1="375.00" x2="330" y2="375.00" />
+<text class="tick" x="64" y="378.00" text-anchor="end">1</text>
+<line class="axis" x1="70" y1="375" x2="70" y2="490" />
+<rect x="75.57" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(88.57 502.00) rotate(-45)" text-anchor="end">BTEC</text>
+<rect x="112.71" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(125.71 502.00) rotate(-45)" text-anchor="end">Cohere</text>
+<rect x="149.86" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(162.86 502.00) rotate(-45)" text-anchor="end">FLORES</text>
+<rect x="187.00" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(200.00 502.00) rotate(-45)" text-anchor="end">HABIBI</text>
+<rect x="224.14" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(237.14 502.00) rotate(-45)" text-anchor="end">Okapi</text>
+<rect x="261.29" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(274.29 502.00) rotate(-45)" text-anchor="end">ShareGPT</text>
+<rect x="298.43" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(311.43 502.00) rotate(-45)" text-anchor="end">TWEET</text>
+<text class="panel-title" x="560.0" y="361" text-anchor="middle">sau</text>
+<line class="grid" x1="430" y1="490.00" x2="690" y2="490.00" />
+<text class="tick" x="424" y="493.00" text-anchor="end">-1</text>
+<line class="grid" x1="430" y1="461.25" x2="690" y2="461.25" />
+<text class="tick" x="424" y="464.25" text-anchor="end">-0.5</text>
+<line class="axis" x1="430" y1="432.50" x2="690" y2="432.50" />
+<text class="tick" x="424" y="435.50" text-anchor="end">0</text>
+<line class="grid" x1="430" y1="403.75" x2="690" y2="403.75" />
+<text class="tick" x="424" y="406.75" text-anchor="end">0.5</text>
+<line class="grid" x1="430" y1="375.00" x2="690" y2="375.00" />
+<text class="tick" x="424" y="378.00" text-anchor="end">1</text>
+<line class="axis" x1="430" y1="375" x2="430" y2="490" />
+<rect x="435.57" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(448.57 502.00) rotate(-45)" text-anchor="end">BTEC</text>
+<rect x="472.71" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(485.71 502.00) rotate(-45)" text-anchor="end">Cohere</text>
+<rect x="509.86" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(522.86 502.00) rotate(-45)" text-anchor="end">FLORES</text>
+<rect x="547.00" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(560.00 502.00) rotate(-45)" text-anchor="end">HABIBI</text>
+<rect x="584.14" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(597.14 502.00) rotate(-45)" text-anchor="end">Okapi</text>
+<rect x="621.29" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(634.29 502.00) rotate(-45)" text-anchor="end">ShareGPT</text>
+<rect x="658.43" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(671.43 502.00) rotate(-45)" text-anchor="end">TWEET</text>
+<text class="panel-title" x="920.0" y="361" text-anchor="middle">sdn</text>
+<line class="grid" x1="790" y1="490.00" x2="1050" y2="490.00" />
+<text class="tick" x="784" y="493.00" text-anchor="end">-1</text>
+<line class="grid" x1="790" y1="461.25" x2="1050" y2="461.25" />
+<text class="tick" x="784" y="464.25" text-anchor="end">-0.5</text>
+<line class="axis" x1="790" y1="432.50" x2="1050" y2="432.50" />
+<text class="tick" x="784" y="435.50" text-anchor="end">0</text>
+<line class="grid" x1="790" y1="403.75" x2="1050" y2="403.75" />
+<text class="tick" x="784" y="406.75" text-anchor="end">0.5</text>
+<line class="grid" x1="790" y1="375.00" x2="1050" y2="375.00" />
+<text class="tick" x="784" y="378.00" text-anchor="end">1</text>
+<line class="axis" x1="790" y1="375" x2="790" y2="490" />
+<rect x="796.50" y="432.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(811.67 502.00) rotate(-45)" text-anchor="end">BTEC</text>
+<rect x="839.83" y="432.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(855.00 502.00) rotate(-45)" text-anchor="end">Cohere</text>
+<rect x="883.17" y="432.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(898.33 502.00) rotate(-45)" text-anchor="end">HABIBI</text>
+<rect x="926.50" y="432.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(941.67 502.00) rotate(-45)" text-anchor="end">Okapi</text>
+<rect x="969.83" y="432.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(985.00 502.00) rotate(-45)" text-anchor="end">ShareGPT</text>
+<rect x="1013.17" y="432.50" width="30.33" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1028.33 502.00) rotate(-45)" text-anchor="end">TWEET</text>
+<text class="panel-title" x="1280.0" y="361" text-anchor="middle">syr</text>
+<line class="grid" x1="1150" y1="490.00" x2="1410" y2="490.00" />
+<text class="tick" x="1144" y="493.00" text-anchor="end">-1</text>
+<line class="grid" x1="1150" y1="461.25" x2="1410" y2="461.25" />
+<text class="tick" x="1144" y="464.25" text-anchor="end">-0.5</text>
+<line class="axis" x1="1150" y1="432.50" x2="1410" y2="432.50" />
+<text class="tick" x="1144" y="435.50" text-anchor="end">0</text>
+<line class="grid" x1="1150" y1="403.75" x2="1410" y2="403.75" />
+<text class="tick" x="1144" y="406.75" text-anchor="end">0.5</text>
+<line class="grid" x1="1150" y1="375.00" x2="1410" y2="375.00" />
+<text class="tick" x="1144" y="378.00" text-anchor="end">1</text>
+<line class="axis" x1="1150" y1="375" x2="1150" y2="490" />
+<rect x="1155.57" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1168.57 502.00) rotate(-45)" text-anchor="end">BTEC</text>
+<rect x="1192.71" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1205.71 502.00) rotate(-45)" text-anchor="end">Cohere</text>
+<rect x="1229.86" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1242.86 502.00) rotate(-45)" text-anchor="end">FLORES</text>
+<rect x="1267.00" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1280.00 502.00) rotate(-45)" text-anchor="end">HABIBI</text>
+<rect x="1304.14" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1317.14 502.00) rotate(-45)" text-anchor="end">Okapi</text>
+<rect x="1341.29" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1354.29 502.00) rotate(-45)" text-anchor="end">ShareGPT</text>
+<rect x="1378.43" y="432.50" width="26.00" height="0.00" fill="#1f77b4" />
+<text class="tick" transform="translate(1391.43 502.00) rotate(-45)" text-anchor="end">TWEET</text>
+</svg>

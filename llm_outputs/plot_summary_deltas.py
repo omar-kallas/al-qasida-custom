@@ -92,7 +92,6 @@ def compute_grouped_deltas(
 ) -> tuple[dict[str, dict[str, float]], int]:
     grouped: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
     skipped = 0
-
     for key in sorted(target_rows):
         dataset, dialect_code, _ = key
         target_value = parse_float(target_rows[key].get(metric, ""))
@@ -283,6 +282,15 @@ def main() -> int:
     parser.add_argument("reference_summary", type=Path, help="Reference summary CSV.")
     parser.add_argument("--metric", default="score", help="Numeric metric column to compare. Default: score.")
     parser.add_argument("--output", type=Path, help="Output image path. Defaults next to target summary.")
+    parser.add_argument(
+        "--dialects",
+        "-d",
+        nargs="+",
+        help=(
+            "Dialect codes to include in the plot. Exact codes match directly; "
+            "single components like egy also match MT codes such as egy-eng and eng-egy."
+        ),
+    )
     args = parser.parse_args()
 
     target_path = args.target_summary.expanduser().resolve()
@@ -309,6 +317,10 @@ def main() -> int:
             raise ValueError(f"{reference_path} is missing metric column '{args.metric}'")
 
         target_indexed, reference_indexed, unmatched_target = validate_pairing(target_rows, reference_rows)
+        if args.dialects:
+            target_indexed = {k: v for k, v in target_indexed.items() if any([dialect in k[1] for dialect in args.dialects])}
+            reference_indexed = {k: v for k, v in reference_indexed.items() if any([dialect in k[1] for dialect in args.dialects])}
+
         deltas, skipped = compute_grouped_deltas(target_indexed, reference_indexed, args.metric)
         plot_deltas(deltas, args.metric, target_path, reference_path, output_path)
     except ValueError as exc:
