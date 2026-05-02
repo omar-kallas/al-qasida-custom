@@ -1,14 +1,7 @@
 #!/bin/bash
 
-for i in $(seq 14 20); do
-    for j in $(seq 1 5); do
-        python aggregate_results.py "allam_steered_cairo_monolingual_l${i}_c${j}.0"
-    done
-done
-
-
-for i in $(seq 14 20); do
-    for j in $(seq 1 5); do
-        python aggregate_results.py "allam_steered_cairo_mt_l${i}_c${j}.0"
+for task in monolingual crosslingual mt; do
+    for city in beirut cairo rabat riyadh; do
+        python aggregate_results.py "allam_steered_${city}_${task}_l14_c3.0"
     done
 done
