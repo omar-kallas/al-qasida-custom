@@ -1,0 +1,9 @@
+row_type,dialect_code,dataset,metric,delta,num_rows
+bar,dza-eng,BTEC,score,0.0,1
+dialect_average,dza-eng,__average__,score,0.0,1
+bar,dza-msa,BTEC,score,0.0,1
+dialect_average,dza-msa,__average__,score,0.0,1
+bar,eng-dza,BTEC,score,0.05487680235815842,1
+dialect_average,eng-dza,__average__,score,0.05487680235815842,1
+bar,msa-dza,BTEC,score,0.029051216198092727,1
+dialect_average,msa-dza,__average__,score,0.029051216198092727,1

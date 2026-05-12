@@ -1,0 +1,13 @@
+row_type,dialect_code,dataset,metric,delta,num_rows
+bar,eng-sau,BTEC,ChrF_corpus_score,0.01659734777335281,1
+bar,eng-sau,FLORES,ChrF_corpus_score,-0.07527569416676666,1
+dialect_average,eng-sau,__average__,ChrF_corpus_score,-0.029339173196706925,2
+bar,msa-sau,BTEC,ChrF_corpus_score,0.009443050090372274,1
+bar,msa-sau,FLORES,ChrF_corpus_score,-0.07684150180809324,1
+dialect_average,msa-sau,__average__,ChrF_corpus_score,-0.03369922585886048,2
+bar,sau-eng,BTEC,ChrF_corpus_score,0.009245609245839281,1
+bar,sau-eng,FLORES,ChrF_corpus_score,-0.011776586899780672,1
+dialect_average,sau-eng,__average__,ChrF_corpus_score,-0.0012654888269706954,2
+bar,sau-msa,BTEC,ChrF_corpus_score,-0.06728524162225213,1
+bar,sau-msa,FLORES,ChrF_corpus_score,-0.07867769436049232,1
+dialect_average,sau-msa,__average__,ChrF_corpus_score,-0.07298146799137223,2

@@ -1,0 +1,13 @@
+row_type,dialect_code,dataset,metric,delta,num_rows
+bar,eng-sau,BTEC,score,0.08876959036028047,1
+bar,eng-sau,FLORES,score,0.0757844674811252,1
+dialect_average,eng-sau,__average__,score,0.08227702892070284,2
+bar,msa-sau,BTEC,score,-0.0313965821920591,1
+bar,msa-sau,FLORES,score,-0.01224101944260883,1
+dialect_average,msa-sau,__average__,score,-0.021818800817333964,2
+bar,sau-eng,BTEC,score,0.0,1
+bar,sau-eng,FLORES,score,0.0,1
+dialect_average,sau-eng,__average__,score,0.0,2
+bar,sau-msa,BTEC,score,0.0,1
+bar,sau-msa,FLORES,score,0.0,1
+dialect_average,sau-msa,__average__,score,0.0,2

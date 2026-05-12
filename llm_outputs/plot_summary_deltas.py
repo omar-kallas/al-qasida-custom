@@ -89,7 +89,7 @@ def compute_grouped_deltas(
     target_rows: dict[tuple[str, str, int], dict[str, str]],
     reference_rows: dict[tuple[str, str, int], dict[str, str]],
     metric: str,
-) -> tuple[dict[str, dict[str, float]], int]:
+) -> tuple[dict[str, dict[str, float]], dict[str, dict[str, int]], int]:
     grouped: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
     skipped = 0
     for key in sorted(target_rows):
@@ -108,7 +108,58 @@ def compute_grouped_deltas(
         }
         for dialect, dataset_values in sorted(grouped.items())
     }
-    return averaged, skipped
+    counts = {
+        dialect: {
+            dataset: len(values)
+            for dataset, values in sorted(dataset_values.items())
+        }
+        for dialect, dataset_values in sorted(grouped.items())
+    }
+    return averaged, counts, skipped
+
+
+def write_delta_csv(
+    deltas: dict[str, dict[str, float]],
+    counts: dict[str, dict[str, int]],
+    metric: str,
+    output_path: Path,
+) -> int:
+    fieldnames = ["row_type", "dialect_code", "dataset", "metric", "delta", "num_rows"]
+    row_count = 0
+
+    with output_path.open("w", newline="", encoding="utf-8") as outfile:
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for dialect in sorted(deltas):
+            dataset_deltas = deltas[dialect]
+            for dataset, delta in sorted(dataset_deltas.items()):
+                writer.writerow(
+                    {
+                        "row_type": "bar",
+                        "dialect_code": dialect,
+                        "dataset": dataset,
+                        "metric": metric,
+                        "delta": delta,
+                        "num_rows": counts[dialect][dataset],
+                    }
+                )
+                row_count += 1
+
+            average_delta = sum(dataset_deltas.values()) / len(dataset_deltas)
+            writer.writerow(
+                {
+                    "row_type": "dialect_average",
+                    "dialect_code": dialect,
+                    "dataset": "__average__",
+                    "metric": metric,
+                    "delta": average_delta,
+                    "num_rows": len(dataset_deltas),
+                }
+            )
+            row_count += 1
+
+    return row_count
 
 
 def plot_deltas(
@@ -274,6 +325,10 @@ def default_output_path(target_path: Path, metric: str) -> Path:
     return target_path.parent / f"{target_path.stem}_delta_{safe_metric}{suffix}"
 
 
+def default_csv_output_path(image_output_path: Path) -> Path:
+    return image_output_path.with_suffix(".csv")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Plot per-dialect metric deltas between a target and reference summary CSV."
@@ -282,6 +337,11 @@ def main() -> int:
     parser.add_argument("reference_summary", type=Path, help="Reference summary CSV.")
     parser.add_argument("--metric", default="score", help="Numeric metric column to compare. Default: score.")
     parser.add_argument("--output", type=Path, help="Output image path. Defaults next to target summary.")
+    parser.add_argument(
+        "--csv-output",
+        type=Path,
+        help="Output CSV path for plotted deltas. Defaults next to the output image.",
+    )
     parser.add_argument(
         "--dialects",
         "-d",
@@ -299,6 +359,11 @@ def main() -> int:
         args.output.expanduser().resolve()
         if args.output
         else default_output_path(target_path, args.metric)
+    )
+    csv_output_path = (
+        args.csv_output.expanduser().resolve()
+        if args.csv_output
+        else default_csv_output_path(output_path)
     )
     if plt is None and output_path.suffix.lower() != ".svg":
         print(
@@ -321,13 +386,15 @@ def main() -> int:
             target_indexed = {k: v for k, v in target_indexed.items() if any([dialect in k[1] for dialect in args.dialects])}
             reference_indexed = {k: v for k, v in reference_indexed.items() if any([dialect in k[1] for dialect in args.dialects])}
 
-        deltas, skipped = compute_grouped_deltas(target_indexed, reference_indexed, args.metric)
+        deltas, counts, skipped = compute_grouped_deltas(target_indexed, reference_indexed, args.metric)
         plot_deltas(deltas, args.metric, target_path, reference_path, output_path)
+        csv_row_count = write_delta_csv(deltas, counts, args.metric, csv_output_path)
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
     print(f"Wrote delta plot to {output_path}")
+    print(f"Wrote {csv_row_count} delta CSV row(s) to {csv_output_path}")
     if unmatched_target:
         print(
             f"Flagged {sum(unmatched_target.values())} target row(s) without a reference match:",

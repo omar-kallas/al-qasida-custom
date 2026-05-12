@@ -1,0 +1,9 @@
+row_type,dialect_code,dataset,metric,delta,num_rows
+bar,dza-eng,BTEC,SpBLEU_corpus_score,-0.06874605881054552,1
+dialect_average,dza-eng,__average__,SpBLEU_corpus_score,-0.06874605881054552,1
+bar,dza-msa,BTEC,SpBLEU_corpus_score,-0.08847356639691406,1
+dialect_average,dza-msa,__average__,SpBLEU_corpus_score,-0.08847356639691406,1
+bar,eng-dza,BTEC,SpBLEU_corpus_score,-0.027381409206042553,1
+dialect_average,eng-dza,__average__,SpBLEU_corpus_score,-0.027381409206042553,1
+bar,msa-dza,BTEC,SpBLEU_corpus_score,-0.031685615922655855,1
+dialect_average,msa-dza,__average__,SpBLEU_corpus_score,-0.031685615922655855,1

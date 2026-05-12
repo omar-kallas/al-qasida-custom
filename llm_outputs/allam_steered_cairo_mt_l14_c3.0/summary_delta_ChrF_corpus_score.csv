@@ -1,0 +1,13 @@
+row_type,dialect_code,dataset,metric,delta,num_rows
+bar,egy-eng,BTEC,ChrF_corpus_score,-0.028584120694449267,1
+bar,egy-eng,FLORES,ChrF_corpus_score,-0.043171414509166506,1
+dialect_average,egy-eng,__average__,ChrF_corpus_score,-0.035877767601807886,2
+bar,egy-msa,BTEC,ChrF_corpus_score,-0.127238972581306,1
+bar,egy-msa,FLORES,ChrF_corpus_score,-0.09441294627522434,1
+dialect_average,egy-msa,__average__,ChrF_corpus_score,-0.11082595942826517,2
+bar,eng-egy,BTEC,ChrF_corpus_score,-0.016489307079859794,1
+bar,eng-egy,FLORES,ChrF_corpus_score,-0.031222485711485726,1
+dialect_average,eng-egy,__average__,ChrF_corpus_score,-0.02385589639567276,2
+bar,msa-egy,BTEC,ChrF_corpus_score,-0.0010435266988347291,1
+bar,msa-egy,FLORES,ChrF_corpus_score,-0.02561864967495142,1
+dialect_average,msa-egy,__average__,ChrF_corpus_score,-0.013331088186893075,2

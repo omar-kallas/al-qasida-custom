@@ -1,0 +1,13 @@
+row_type,dialect_code,dataset,metric,delta,num_rows
+bar,egy-eng,BTEC,score,0.0,1
+bar,egy-eng,FLORES,score,0.0,1
+dialect_average,egy-eng,__average__,score,0.0,2
+bar,egy-msa,BTEC,score,0.0,1
+bar,egy-msa,FLORES,score,0.0,1
+dialect_average,egy-msa,__average__,score,0.0,2
+bar,eng-egy,BTEC,score,-0.004087103015828097,1
+bar,eng-egy,FLORES,score,0.15845414762179638,1
+dialect_average,eng-egy,__average__,score,0.07718352230298414,2
+bar,msa-egy,BTEC,score,0.0018490404248492354,1
+bar,msa-egy,FLORES,score,0.10576371711913851,1
+dialect_average,msa-egy,__average__,score,0.053806378771993874,2

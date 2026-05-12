@@ -7,17 +7,17 @@ city_args["cairo"]="egy sdn"
 city_args["rabat"]="dza mar"
 city_args["riyadh"]="sau kwt"
 
-# for city in beirut cairo rabat riyadh; do
-#     python plot_summary_deltas.py \
-#     "allam_steered_${city}_monolingual_l14_c3.0/summary.csv" \
-#     "allam_baseline_monolingual/summary.csv"
-# done
+for city in beirut cairo rabat riyadh; do
+    python plot_summary_deltas.py \
+    "allam_steered_${city}_monolingual_l14_c3.0/summary.csv" \
+    "allam_baseline_monolingual/summary.csv"
+done
 
-# for city in beirut cairo rabat riyadh; do
-#     python plot_summary_deltas.py \
-#     "allam_steered_${city}_crosslingual_l14_c3.0/summary.csv" \
-#     "allam_baseline_crosslingual/summary.csv"
-# done
+for city in beirut cairo rabat riyadh; do
+    python plot_summary_deltas.py \
+    "allam_steered_${city}_crosslingual_l14_c3.0/summary.csv" \
+    "allam_baseline_crosslingual/summary.csv"
+done
 
 for city in beirut cairo rabat riyadh; do
     python plot_summary_deltas.py \

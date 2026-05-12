@@ -210,8 +210,8 @@ def plot_with_matplotlib(
     ax.axhline(0, color="#333333", linewidth=0.9)
     ax.grid(axis="y", alpha=0.25)
     ax.set_title(f"Summary deltas vs {reference_dir.name}")
-    ax.set_xlabel("Directory" if not numeric_axis else "Last number in directory name")
-    ax.set_ylabel("Mean target-reference delta")
+    ax.set_xlabel("steering coefficient α")
+    ax.set_ylabel("mean delta")
     ax.legend()
 
     if numeric_axis:
@@ -302,11 +302,10 @@ def plot_svg(
         svg.append(f'<line x1="{width - right + 40}" y1="{legend_y}" x2="{width - right + 62}" y2="{legend_y}" stroke="{color}" stroke-width="2" />')
         svg.append(f'<text class="label" x="{width - right + 70}" y="{legend_y + 4}">{escape(metric)}</text>')
 
-    x_label = "Last number in directory name" if numeric_axis else "Directory"
-    svg.append(f'<text class="label" x="{left + plot_width / 2}" y="{height - 18}" text-anchor="middle">{x_label}</text>')
+    svg.append(f'<text class="label" x="{left + plot_width / 2}" y="{height - 18}" text-anchor="middle">steering coefficient α</text>')
     svg.append(
         f'<text class="label" transform="translate(20 {top + plot_height / 2}) rotate(-90)" '
-        f'text-anchor="middle">Mean target-reference delta</text>'
+        f'text-anchor="middle">mean delta</text>'
     )
     svg.append("</svg>")
     output_path.write_text("\n".join(svg), encoding="utf-8")
