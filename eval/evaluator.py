@@ -107,15 +107,27 @@ def chrf_corpus_score(labels: List[str], generations: List[str]):
     return {"ChrF_corpus_score": result.score / 100 if result else None}
 
 class BaseEvaluator():
-    def __init__(self, llm_type, dialect, target_lang='ara', config=None):
+    def __init__(
+            self,
+            llm_type,
+            dialect,
+            target_lang='ara',
+            config=None,
+            load_llm=True,
+        ):
         self.llm_type = llm_type 
-        self.config = config 
+        self.config = config or {}
         if self.config:
             self.hf_model_id = self.config['hf_name']
         else:
             self.hf_model_id = MOD2HF_NAME[self.llm_type]
-        self.llm, self.llm_tokenizer = self.llm_type2llm(llm_type)
-        self.run_llm = self.get_run_llm(llm_type)
+        if load_llm:
+            self.llm, self.llm_tokenizer = self.llm_type2llm(llm_type)
+            self.run_llm = self.get_run_llm(llm_type)
+        else:
+            self.llm = None
+            self.llm_tokenizer = None
+            self.run_llm = None
         self.aldi_model, self.aldi_tokenizer = self.load_aldi() 
         self.nadi_model, self.nadi_tokenizer = self.load_nadi()
         self.lid_model = self.load_lid() 
@@ -422,30 +434,14 @@ class BaseEvaluator():
         #         clean_out = clean_out[len(prompt):].strip() 
         #     clean_outs.append(clean_out) 
         return outs
-    
-    def adi2_eval(self, prompts):
+
+    def adi2_scores(self, outputs):
         all_scores = {
             "prob": [], 
             "dialectness": [], 
             "score": [], 
             "macro_score": []
         } 
-        print(
-            f"Running LLM for {self.dialect} {self.llm_type}...", 
-            flush=True
-        )
-        if self.is_batched():
-            outputs = self.run_llm(
-                [self.clean_prompt(prompt) for prompt in prompts], batch_size=self.config['batch_size']
-            )
-        else:
-            outputs = self.run_llm(
-                [self.clean_prompt(prompt) for prompt in prompts]
-            )
-        print(
-            f"Getting scores for {self.dialect} {self.llm_type}...", 
-            flush=True
-        )
         for output in tqdm(outputs): 
             clean_output = self.clean_text(output)
             # Check if output is in right language 
@@ -467,8 +463,31 @@ class BaseEvaluator():
         mean_score_dict = {
             key: np.mean(all_scores[key]) for key in all_scores
         }
-        return mean_score_dict, outputs
 
+        return mean_score_dict
+
+    def adi2_score(self, outputs):
+        return self.adi2_scores(outputs)
+    
+    def adi2_eval(self, prompts):
+        print(
+            f"Running LLM for {self.dialect} {self.llm_type}...", 
+            flush=True
+        )
+        if self.is_batched():
+            outputs = self.run_llm(
+                [self.clean_prompt(prompt) for prompt in prompts], batch_size=self.config['batch_size']
+            )
+        else:
+            outputs = self.run_llm(
+                [self.clean_prompt(prompt) for prompt in prompts]
+            )
+        print(
+            f"Getting scores for {self.dialect} {self.llm_type}...", 
+            flush=True
+        )
+        mean_score_dict = self.adi2_scores(outputs)
+        return mean_score_dict, outputs
 
 class MTEvaluator(BaseEvaluator):
     def __init__(self, llm_type, mt_direction="eng-egy", **kwargs):
@@ -505,6 +524,147 @@ class LingualEvaluator(BaseEvaluator):
         return self.adi2_eval(prompts)
 
 
+def load_outputs_file(outputs_file, output_field="steered_response"):
+    outputs_path = Path(outputs_file)
+    if not outputs_path.exists():
+        raise FileNotFoundError(f"Outputs file not found: {outputs_file}")
+
+    if outputs_path.suffix == ".jsonl":
+        outputs = []
+        with open(outputs_path, "r", encoding="utf-8") as f:
+            for line_no, line in enumerate(f, start=1):
+                line = line.strip()
+                if not line:
+                    continue
+                row = json.loads(line)
+                if output_field not in row:
+                    print(
+                        f"Skipping {outputs_file}: missing field "
+                        f"{output_field!r} on line {line_no}",
+                        flush=True,
+                    )
+                    return []
+                outputs.append(row[output_field])
+        return outputs
+
+    if outputs_path.suffix == ".json":
+        with open(outputs_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            data = data.get("outputs", data.get("data", []))
+        if any(output_field not in row for row in data):
+            print(
+                f"Skipping {outputs_file}: missing field {output_field!r}",
+                flush=True,
+            )
+            return []
+        return [row[output_field] for row in data]
+
+    if outputs_path.suffix == ".csv":
+        df = pd.read_csv(outputs_path)
+        if output_field not in df.columns:
+            print(
+                f"Skipping {outputs_file}: missing column {output_field!r}",
+                flush=True,
+            )
+            return []
+        return list(df[output_field].values)
+
+    if outputs_path.suffix == ".tsv":
+        df = pd.read_table(outputs_path)
+        if output_field not in df.columns:
+            print(
+                f"Skipping {outputs_file}: missing column {output_field!r}",
+                flush=True,
+            )
+            return []
+        return list(df[output_field].values)
+
+    raise ValueError(
+        f"Unsupported outputs file extension for {outputs_file}. "
+        "Use .jsonl, .json, .csv, or .tsv."
+    )
+
+
+def collect_outputs_files(outputs_path):
+    outputs_path = Path(outputs_path)
+    if outputs_path.is_dir():
+        outputs_files = sorted(outputs_path.glob("*.jsonl"))
+        if not outputs_files:
+            raise FileNotFoundError(f"No .jsonl files found in {outputs_path}")
+        return outputs_files
+    return [outputs_path]
+
+
+def run_external_output_evaluation(
+        outputs_file,
+        out_dir,
+        task="monolingual",
+        dialects=None,
+        output_field="steered_response",
+        run_name=None,
+        scores_file=None,
+    ):
+    dialects = dialects or TASK2DIALECTS[task]
+    outputs_files = collect_outputs_files(outputs_file)
+    if run_name is None:
+        run_name = Path(outputs_file).stem
+    if scores_file is None:
+        scores_file = Path(out_dir) / f"{run_name}_adi2_scores.csv"
+
+    rows = []
+    for dialect in dialects:
+        score_dialect = dialect
+        target_lang = "ara"
+        if task == "mt" and "-" in dialect:
+            score_dialect = dialect.split("-")[-1]
+            target_lang = "eng" if score_dialect == "eng" else "ara"
+        print(f"Loading ADI2 scorer for {dialect}...", flush=True)
+        evaluator = BaseEvaluator(
+            llm_type="jais",
+            dialect=score_dialect,
+            target_lang=target_lang,
+            load_llm=False,
+        )
+
+        for outputs_path in outputs_files:
+            outputs = [
+                str(output) if output is not None else ""
+                for output in load_outputs_file(
+                    outputs_path, output_field=output_field
+                )
+            ]
+            if not outputs:
+                print(f"Skipping {outputs_path}: no outputs found", flush=True)
+                continue
+            print(
+                f"Scoring {len(outputs)} outputs from {outputs_path} "
+                f"for {dialect} using field {output_field!r}",
+                flush=True,
+            )
+            mean_score_dict = evaluator.adi2_score(outputs)
+            rows.append({
+                "file": outputs_path.name,
+                "run_name": run_name,
+                "task": task,
+                "score_dialect": score_dialect,
+                "n_outputs": len(outputs),
+                **mean_score_dict,
+            })
+        del evaluator
+
+    if not rows:
+        raise ValueError(
+            f"No score rows produced from {outputs_file}; check "
+            f"--output-field={output_field!r}"
+        )
+
+    scores_file = Path(scores_file)
+    scores_file.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(rows).to_csv(scores_file, index=False)
+    print(f"{scores_file} written", flush=True)
+
+
 def run_evaluation(
         data_dir, # data/mono or data/xling
         out_pkl,
@@ -531,7 +691,7 @@ def run_evaluation(
         with open(use_config, 'r') as f:
             config = json.load(f)
     else:
-        config = None
+        config = {}
 
     if config.get('layer') and config.get('coef'):
         out_pkl += f"_l{config.get('layer')}_c{config.get('coef')}"
@@ -646,7 +806,27 @@ def run_evaluation(
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser() 
-    parser.add_argument("--data-dir", required=True, type=str)
+    parser.add_argument("--data-dir", type=str)
+    parser.add_argument(
+        "--outputs-file",
+        type=str,
+        help="Score an existing JSONL/JSON/CSV/TSV outputs file instead of generating responses.",
+    )
+    parser.add_argument(
+        "--output-field",
+        default="steered_response",
+        help="Field/column containing model outputs in --outputs-file.",
+    )
+    parser.add_argument(
+        "--run-name",
+        default=None,
+        help="Name used for the output directory when scoring --outputs-file.",
+    )
+    parser.add_argument(
+        "--scores-file",
+        default=None,
+        help="Single CSV path for ADI2 scores when using --outputs-file.",
+    )
     parser.add_argument("--test", action="store_true")
     parser.add_argument("--cpu", action="store_true") 
     parser.add_argument("--out-dir", default="../llm_outputs", type=str)
@@ -676,6 +856,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    if not args.outputs_file and not args.data_dir:
+        parser.error("--data-dir is required unless --outputs-file is provided")
+
     if args.llm in SUPPORTED_MODELS and args.use_config:
         usr_warning_response = "" 
         while usr_warning_response.lower() not in {'y', 'n'}:
@@ -687,7 +870,7 @@ if __name__ == "__main__":
         if usr_warning_response.lower() == 'n':
             raise KeyboardInterrupt("User quit")
 
-    if not (args.cpu or torch.cuda.is_available()):
+    if not args.outputs_file and not (args.cpu or torch.cuda.is_available()):
         raise RuntimeError("Need GPU")
     
     out_pkl_dir = os.path.join(args.out_dir, "pkls")
@@ -712,6 +895,18 @@ if __name__ == "__main__":
     else:
         dialects = TASK2DIALECTS[args.task] 
 
+    if args.outputs_file:
+        run_external_output_evaluation(
+            outputs_file=args.outputs_file,
+            out_dir=args.out_dir,
+            task=args.task,
+            dialects=dialects,
+            output_field=args.output_field,
+            run_name=args.run_name,
+            scores_file=args.scores_file,
+        )
+        raise SystemExit(0)
+
     run_evaluation(
         data_dir=os.path.join(args.data_dir, task_abbrev), 
         out_pkl=out_pkl_fn,
@@ -723,5 +918,3 @@ if __name__ == "__main__":
         nshot=args.nshot,
         use_config=args.use_config
     )
-
-

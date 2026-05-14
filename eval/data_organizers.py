@@ -19,7 +19,8 @@ GENRE2STR = {
     "wiki/flores": "FLORES",
     "hehe": "Cohere",
     "okapi": "Okapi",
-    "sharegpt": "ShareGPT"
+    "sharegpt": "ShareGPT",
+    "external": "EXTERNAL",
 }
 TASK2SUBDIRS = {
     "monolingual": [
